@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60);
@@ -16,6 +16,8 @@ const RoomDetail = () => {
 
   const [copied, setCopied] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(40);
+  const [input, setInput] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleCopyLink = () => {
     const url = window.location.href;
@@ -74,6 +76,15 @@ const RoomDetail = () => {
             <input
               type="text"
               autoFocus
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && input.trim()) {
+                  inputRef.current?.focus();
+                }
+              }}
+              ref={inputRef}
+              placeholder="Type message..."
               className="w-full bgblack border border-zinc-800 focus:border-zinc-700 focus:outline-none transition-colors text-black placeholder:text-zinc-700 py-3 pl-8 pr-4 text-sm"
             />
           </div>

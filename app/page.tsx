@@ -38,7 +38,7 @@ export default function Home() {
     mutationFn: async () => {
       const res = await client.rooms.create.post();
       if (res.status === 200) {
-        router.push(`/rooms/${res.data?.roomId}`);
+        router.push(`/room/${res.data?.roomId}`);
       }
     },
   });
