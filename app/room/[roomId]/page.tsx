@@ -1,6 +1,9 @@
 "use client";
 
+import { useUsername } from "@/hooks/useUsername";
+import { client } from "@/lib/eden";
 import { cn } from "@/lib/utils";
+import { useMutation } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -14,10 +17,20 @@ const RoomDetail = () => {
   const params = useParams();
   const roomId = params.roomId as string;
 
+  const { username } = useUsername();
   const [copied, setCopied] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(40);
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { mutate: sendMessage, isPending } = useMutation({
+    mutationFn: async ({ text }: { text: string }) => {
+      await client.messages.post(
+        { sender: username, text },
+        { query: { roomId } },
+      );
+    },
+  });
 
   const handleCopyLink = () => {
     const url = window.location.href;
@@ -80,6 +93,7 @@ const RoomDetail = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && input.trim()) {
+                  sendMessage({ text: input });
                   inputRef.current?.focus();
                 }
               }}
@@ -88,7 +102,14 @@ const RoomDetail = () => {
               className="w-full bgblack border border-zinc-800 focus:border-zinc-700 focus:outline-none transition-colors text-black placeholder:text-zinc-700 py-3 pl-8 pr-4 text-sm"
             />
           </div>
-          <button className="bg-zinc-800 text-white px-6 text-sm font-bold hover:text-zinc-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+          <button
+            onClick={() => {
+              sendMessage({ text: input });
+              inputRef.current?.focus();
+            }}
+            disabled={!input.trim() || isPending}
+            className="bg-zinc-800 text-white px-6 text-sm font-bold hover:text-zinc-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
             SEND
           </button>
         </div>
