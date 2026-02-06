@@ -33,6 +33,21 @@ const rooms = new Elysia({ prefix: "/rooms" })
       return { ttl: ttl > 0 ? ttl : 0 };
     },
     { query: z.object({ roomId: z.string() }) },
+  )
+  .delete(
+    "/",
+    async ({ auth }) => {
+      await Promise.all([
+        await redis.del(auth.roomId),
+        await redis.del(`meta:${auth.roomId}`),
+        await redis.del(`messages:${auth.roomId}`),
+      ]);
+
+      await realtime
+        .channel(auth.roomId)
+        .emit("chat.destroy", { isDestroyed: true });
+    },
+    { query: z.object({ roomId: z.string() }) },
   );
 
 const messages = new Elysia({ prefix: "/messages" })

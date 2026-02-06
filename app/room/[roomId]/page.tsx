@@ -97,6 +97,12 @@ const RoomDetail = () => {
     }, 2000);
   };
 
+  const { mutate: deleteRoom } = useMutation({
+    mutationFn: async () => {
+      await client.rooms.delete(null, { query: { roomId } });
+    },
+  });
+
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden">
       <header className="border-b border-zinc-800 p-4 flex items-center justify-between ">
@@ -130,7 +136,10 @@ const RoomDetail = () => {
             </span>
           </div>
         </div>
-        <button className="text-xs border hover:bg-red-600 px-3 py-1.5 rounded text-black hover:text-white font-bold transition-all group flex items-center gap-2 disabled:opacity-50">
+        <button
+          onClick={() => deleteRoom()}
+          className="text-xs border hover:bg-red-600 px-3 py-1.5 rounded text-black hover:text-white font-bold transition-all group flex items-center gap-2 disabled:opacity-50"
+        >
           DESTROY NOW
         </button>
       </header>
